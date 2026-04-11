@@ -20,18 +20,53 @@
 
   #custom-cursor {
     position: fixed;
-    width: 60px;
-    height: 60px;
     pointer-events: none;
     z-index: 9999;
-    transform: translate(-8px, -4px);
-    transition: scale 0.1s;
+    transition: width 0.2s, height 0.2s, scale 0.1s;
     filter: drop-shadow(2px 3px 4px rgba(0,0,0,0.3));
   }
 
   #custom-cursor svg {
     width: 100%;
     height: 100%;
+  }
+
+  #custom-cursor span {
+    font-size: 42px;
+    line-height: 1;
+  }
+
+  /* 기본 화살표 */
+  #custom-cursor.mode-default {
+    width: 44px;
+    height: 44px;
+    transform: translate(-6px, -3px);
+  }
+
+  /* 호버: 손가락 이모지 */
+  #custom-cursor.mode-pointer {
+    transform: translate(-12px, -5px);
+    animation: cursorBounce 0.3s ease-out;
+  }
+
+  #custom-cursor.mode-pointer span {
+    font-size: 42px;
+  }
+
+  /* 드래그: 주먹 이모지 */
+  #custom-cursor.mode-grab {
+    transform: translate(-14px, -8px);
+    animation: cursorBounce 0.3s ease-out;
+  }
+
+  #custom-cursor.mode-grab span {
+    font-size: 52px;
+  }
+
+  @keyframes cursorBounce {
+    0% { scale: 0.7; }
+    60% { scale: 1.15; }
+    100% { scale: 1; }
   }
 
   #header {
@@ -124,7 +159,7 @@
     color: white;
     border: none;
     border-radius: 50px;
-    cursor: pointer;
+    cursor: none;
     transition: transform 0.2s, box-shadow 0.2s;
     box-shadow: 0 8px 25px rgba(124,92,191,0.3);
   }
@@ -174,7 +209,7 @@
   .click-target {
     position: absolute;
     font-size: 70px;
-    cursor: pointer;
+    cursor: none;
     transition: transform 0.1s;
     animation: appear 0.3s ease-out;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
@@ -183,13 +218,14 @@
 
   .click-target:hover {
     transform: scale(1.15);
+    cursor: none;
   }
 
   /* 더블클릭 알 */
   .egg-target {
     position: absolute;
     font-size: 80px;
-    cursor: pointer;
+    cursor: none;
     animation: wobble 2s infinite;
     filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
     z-index: 10;
@@ -212,7 +248,7 @@
   .drag-item {
     position: absolute;
     font-size: 64px;
-    cursor: grab;
+    cursor: none;
     z-index: 20;
     transition: transform 0.1s;
     filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
@@ -223,7 +259,7 @@
   }
 
   .drag-item.dragging {
-    cursor: grabbing;
+    cursor: none;
     transform: scale(1.2);
     z-index: 30;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
@@ -384,9 +420,14 @@
 
 <!-- 큰 커스텀 커서 -->
 <div id="custom-cursor">
-  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 기본: 분홍 화살표 -->
+  <svg class="cursor-default" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M4 4L14 28L17 18L28 14L4 4Z" fill="#FF6B9D" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>
   </svg>
+  <!-- 호버: 손가락 이모지 -->
+  <span class="cursor-pointer" style="display:none">👆</span>
+  <!-- 드래그: 주먹 이모지 -->
+  <span class="cursor-grab" style="display:none">✊</span>
 </div>
 
 <div id="header">
@@ -872,15 +913,47 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 
 // ===== 큰 커스텀 커서 =====
 const customCursor = document.getElementById('custom-cursor');
+const cursorDefault = customCursor.querySelector('.cursor-default');
+const cursorPointer = customCursor.querySelector('.cursor-pointer');
+const cursorGrab = customCursor.querySelector('.cursor-grab');
+let cursorMode = '';
+
+function setCursorMode(mode) {
+  if (cursorMode === mode) return;
+  cursorMode = mode;
+  cursorDefault.style.display = mode === 'default' ? '' : 'none';
+  cursorPointer.style.display = mode === 'pointer' ? '' : 'none';
+  cursorGrab.style.display = mode === 'grab' ? '' : 'none';
+  customCursor.className = 'mode-' + mode;
+}
+
+setCursorMode('default');
+
 document.addEventListener('mousemove', (e) => {
   customCursor.style.left = e.clientX + 'px';
   customCursor.style.top = e.clientY + 'px';
+
+  // 드래그 중이면 grab 유지
+  if (dragState) {
+    setCursorMode('grab');
+    return;
+  }
+
+  // 호버 대상 체크
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  if (el && (el.classList.contains('click-target') || el.classList.contains('egg-target') || el.classList.contains('drag-item'))) {
+    setCursorMode('pointer');
+  } else {
+    setCursorMode('default');
+  }
 });
+
 document.addEventListener('mousedown', () => {
   customCursor.style.scale = '0.85';
 });
 document.addEventListener('mouseup', () => {
   customCursor.style.scale = '1';
+  if (!dragState) setCursorMode('default');
 });
 </script>
 </body>

@@ -414,6 +414,83 @@
     pointer-events: none;
     animation: confetti 3s ease-in forwards;
   }
+
+  /* ===== 모바일 반응형 ===== */
+  @media (max-width: 600px) {
+    #header {
+      padding: 10px 16px;
+    }
+    #header h1 {
+      font-size: 18px;
+    }
+    .stage-dot {
+      width: 30px;
+      height: 30px;
+      font-size: 14px;
+    }
+    .stage-indicator {
+      gap: 6px;
+    }
+    #score {
+      font-size: 18px;
+    }
+    #intro h2 {
+      font-size: 28px;
+    }
+    #intro p {
+      font-size: 16px;
+    }
+    .start-btn {
+      font-size: 22px;
+      padding: 14px 40px;
+    }
+    #stage-intro h2 {
+      font-size: 28px;
+    }
+    #stage-intro .stage-emoji {
+      font-size: 50px;
+    }
+    #stage-intro p {
+      font-size: 18px;
+      padding: 0 20px;
+    }
+    .click-target {
+      font-size: 50px;
+    }
+    .egg-target {
+      font-size: 60px;
+    }
+    .drag-item {
+      font-size: 48px;
+    }
+    .drop-zone {
+      width: 90px;
+      height: 90px;
+      font-size: 38px;
+    }
+    #complete h2 {
+      font-size: 32px;
+    }
+    #complete .trophy {
+      font-size: 70px;
+    }
+    #complete p {
+      font-size: 18px;
+    }
+    .pop-effect {
+      font-size: 28px;
+    }
+    /* 모바일에서는 커스텀 커서 숨김 (터치 사용) */
+    #custom-cursor {
+      display: none;
+    }
+    body {
+      cursor: auto;
+    }
+    .click-target, .egg-target, .drag-item, .start-btn, .click-target:hover {
+      cursor: auto;
+    }
+  }
 </style>
 </head>
 <body>

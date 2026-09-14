@@ -415,6 +415,112 @@
     animation: confetti 3s ease-in forwards;
   }
 
+
+  /* 글자 찾기 (알파벳 / 한글) */
+  #word-prompt {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 26px;
+    background: rgba(255,255,255,0.92);
+    border: 3px solid #7c5cbf;
+    border-radius: 40px;
+    box-shadow: 0 6px 20px rgba(124,92,191,0.25);
+    z-index: 60;
+    animation: appear 0.3s ease-out;
+    white-space: nowrap;
+  }
+
+  #word-prompt.visible {
+    display: flex;
+  }
+
+  #word-prompt .prompt-emoji {
+    font-size: 44px;
+    line-height: 1;
+  }
+
+  #word-prompt .prompt-text {
+    font-size: 22px;
+    color: #666;
+  }
+
+  #word-prompt .prompt-word {
+    font-size: 40px;
+    font-weight: bold;
+    color: #5b4a9e;
+    letter-spacing: 2px;
+  }
+
+  #word-prompt .prompt-word.multi {
+    font-size: 34px;
+  }
+
+  .word-target {
+    position: absolute;
+    min-width: 84px;
+    height: 84px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    font-weight: bold;
+    color: white;
+    border-radius: 22px;
+    border: 4px solid rgba(255,255,255,0.8);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    cursor: none;
+    z-index: 10;
+    transition: transform 0.1s;
+    animation: appear 0.3s ease-out;
+    letter-spacing: 1px;
+  }
+
+  .word-target.multi {
+    font-size: 34px;
+  }
+
+  .word-target:hover {
+    transform: scale(1.12);
+    cursor: none;
+  }
+
+  /* 더블클릭으로 단어 ↔ 그림 토글 */
+  .word-target.pic {
+    font-size: 56px;
+    letter-spacing: 0;
+    animation: flip 0.35s ease-out;
+  }
+
+  .word-target.flip-back {
+    animation: flip 0.35s ease-out;
+  }
+
+  @keyframes flip {
+    0% { transform: scaleX(0); }
+    100% { transform: scaleX(1); }
+  }
+
+  .word-target.wrong {
+    animation: shake 0.4s;
+  }
+
+  .word-target.correct {
+    animation: successPulse 0.5s;
+    border-color: #ffe66d;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+
   /* ===== 모바일 반응형 ===== */
   @media (max-width: 600px) {
     #header {
@@ -480,6 +586,36 @@
     .pop-effect {
       font-size: 28px;
     }
+    #word-prompt {
+      top: 8px;
+      gap: 8px;
+      padding: 6px 14px;
+    }
+    #word-prompt .prompt-emoji {
+      font-size: 28px;
+    }
+    #word-prompt .prompt-text {
+      font-size: 14px;
+    }
+    #word-prompt .prompt-word {
+      font-size: 26px;
+    }
+    #word-prompt .prompt-word.multi {
+      font-size: 22px;
+    }
+    .word-target {
+      min-width: 60px;
+      height: 60px;
+      padding: 0 12px;
+      font-size: 30px;
+      border-radius: 16px;
+    }
+    .word-target.multi {
+      font-size: 22px;
+    }
+    .word-target.pic {
+      font-size: 38px;
+    }
     /* 모바일에서는 커스텀 커서 숨김 (터치 사용) */
     #custom-cursor {
       display: none;
@@ -487,7 +623,7 @@
     body {
       cursor: auto;
     }
-    .click-target, .egg-target, .drag-item, .start-btn, .click-target:hover {
+    .click-target, .egg-target, .drag-item, .word-target, .start-btn, .click-target:hover, .word-target:hover {
       cursor: auto;
     }
   }
@@ -513,12 +649,21 @@
     <div class="stage-dot" id="dot1">1</div>
     <div class="stage-dot" id="dot2">2</div>
     <div class="stage-dot" id="dot3">3</div>
+    <div class="stage-dot" id="dot4">4</div>
+    <div class="stage-dot" id="dot5">5</div>
   </div>
   <div id="score">⭐ 0</div>
 </div>
 
 <div id="game-area">
   <div id="progress-bar" style="width: 0%"></div>
+
+  <!-- 글자 찾기 안내 카드 -->
+  <div id="word-prompt">
+    <span class="prompt-emoji" id="prompt-emoji"></span>
+    <span class="prompt-text" id="prompt-text">찾아보자!</span>
+    <span class="prompt-word" id="prompt-word"></span>
+  </div>
 
   <!-- 인트로 화면 -->
   <div id="intro">
@@ -539,7 +684,7 @@
   <div id="complete">
     <div class="trophy">🏆</div>
     <h2>대단해! 모두 완료!</h2>
-    <p style="font-size:24px;color:#666">마우스 사용을 아주 잘 배웠어! 👏</p>
+    <p style="font-size:24px;color:#666">마우스도, 글자도 아주 잘 배웠어! 👏</p>
     <button class="start-btn" onclick="resetGame()">🔄 다시 하기</button>
   </div>
 </div>
@@ -551,7 +696,8 @@ let score = 0;
 let stageScore = 0;
 let audioCtx = null;
 
-const STAGE_GOALS = [10, 10, 5];
+const STAGE_GOALS = [10, 10, 5, 10, 10];
+const TOTAL_STAGES = STAGE_GOALS.length;
 const CLICK_EMOJIS = ['🐱', '🐶', '🐰', '🦊', '🐻', '🐼', '🐸', '🦁', '🐯', '🐮', '🐷', '🐵', '🦄', '🐝', '🐞', '🦋', '⭐', '🌟', '💫', '🌈'];
 const HATCH_ANIMALS = ['🐣', '🐥', '🐤', '🐦', '🦜', '🦆', '🦅', '🐧', '🦉', '🦩'];
 const DRAG_PAIRS = [
@@ -565,10 +711,105 @@ const DRAG_PAIRS = [
   { item: '🌸', label: '꽃' },
 ];
 
+// ===== 4단계: 알파벳 / 영단어 =====
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const ENGLISH_WORDS = [
+  { word: 'APPLE', emoji: '🍎' },
+  { word: 'BANANA', emoji: '🍌' },
+  { word: 'CAT', emoji: '🐱' },
+  { word: 'DOG', emoji: '🐶' },
+  { word: 'EGG', emoji: '🥚' },
+  { word: 'FISH', emoji: '🐟' },
+  { word: 'GRAPE', emoji: '🍇' },
+  { word: 'HAT', emoji: '🎩' },
+  { word: 'ICE', emoji: '🧊' },
+  { word: 'JUICE', emoji: '🧃' },
+  { word: 'KEY', emoji: '🔑' },
+  { word: 'LION', emoji: '🦁' },
+  { word: 'MILK', emoji: '🥛' },
+  { word: 'NOSE', emoji: '👃' },
+  { word: 'ORANGE', emoji: '🍊' },
+  { word: 'PIG', emoji: '🐷' },
+  { word: 'QUEEN', emoji: '👸' },
+  { word: 'RABBIT', emoji: '🐰' },
+  { word: 'SUN', emoji: '☀️' },
+  { word: 'TREE', emoji: '🌳' },
+  { word: 'UMBRELLA', emoji: '☂️' },
+  { word: 'VAN', emoji: '🚐' },
+  { word: 'WATER', emoji: '💧' },
+  { word: 'BOX', emoji: '📦' },
+  { word: 'YELLOW', emoji: '💛' },
+  { word: 'ZEBRA', emoji: '🦓' },
+  { word: 'BEAR', emoji: '🐻' },
+  { word: 'BUS', emoji: '🚌' },
+  { word: 'CAR', emoji: '🚗' },
+  { word: 'STAR', emoji: '⭐' },
+  { word: 'MOON', emoji: '🌙' },
+  { word: 'BOOK', emoji: '📖' },
+  { word: 'BALL', emoji: '⚽' },
+  { word: 'CAKE', emoji: '🎂' },
+  { word: 'DUCK', emoji: '🦆' },
+  { word: 'FROG', emoji: '🐸' },
+  { word: 'HOUSE', emoji: '🏠' },
+  { word: 'FLOWER', emoji: '🌸' },
+];
+
+// ===== 5단계: 한글 자모 / 낱말 =====
+const HANGUL_JAMO = ['ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ',
+                     'ㅏ', 'ㅑ', 'ㅓ', 'ㅕ', 'ㅗ', 'ㅛ', 'ㅜ', 'ㅠ', 'ㅡ', 'ㅣ'];
+const KOREAN_WORDS = [
+  { word: '사과', emoji: '🍎' },
+  { word: '바나나', emoji: '🍌' },
+  { word: '포도', emoji: '🍇' },
+  { word: '딸기', emoji: '🍓' },
+  { word: '수박', emoji: '🍉' },
+  { word: '고양이', emoji: '🐱' },
+  { word: '강아지', emoji: '🐶' },
+  { word: '토끼', emoji: '🐰' },
+  { word: '사자', emoji: '🦁' },
+  { word: '호랑이', emoji: '🐯' },
+  { word: '곰', emoji: '🐻' },
+  { word: '돼지', emoji: '🐷' },
+  { word: '오리', emoji: '🦆' },
+  { word: '개구리', emoji: '🐸' },
+  { word: '나비', emoji: '🦋' },
+  { word: '물고기', emoji: '🐟' },
+  { word: '꽃', emoji: '🌸' },
+  { word: '나무', emoji: '🌳' },
+  { word: '해', emoji: '☀️' },
+  { word: '달', emoji: '🌙' },
+  { word: '별', emoji: '⭐' },
+  { word: '비', emoji: '🌧️' },
+  { word: '눈', emoji: '⛄' },
+  { word: '무지개', emoji: '🌈' },
+  { word: '자동차', emoji: '🚗' },
+  { word: '버스', emoji: '🚌' },
+  { word: '기차', emoji: '🚂' },
+  { word: '비행기', emoji: '✈️' },
+  { word: '배', emoji: '⛵' },
+  { word: '집', emoji: '🏠' },
+  { word: '책', emoji: '📖' },
+  { word: '공', emoji: '⚽' },
+  { word: '우유', emoji: '🥛' },
+  { word: '빵', emoji: '🍞' },
+  { word: '케이크', emoji: '🎂' },
+  { word: '모자', emoji: '🎩' },
+  { word: '우산', emoji: '☂️' },
+  { word: '엄마', emoji: '👩' },
+  { word: '아빠', emoji: '👨' },
+  { word: '손', emoji: '✋' },
+  { word: '눈', emoji: '👀' },
+  { word: '코', emoji: '👃' },
+];
+
+const WORD_COLORS = ['#ff6b9d', '#7c5cbf', '#4ecdc4', '#ffa94d', '#5dade2', '#58d68d', '#f06292', '#9575cd', '#ffb74d', '#4db6ac'];
+
 const STAGES = [
   { emoji: '👆', title: '1단계: 클릭!', desc: '동물이 나타나면\n클릭해서 잡아보자!' },
   { emoji: '👆👆', title: '2단계: 더블클릭!', desc: '알을 빠르게 두 번 클릭해서\n동물을 꺼내보자!' },
   { emoji: '✋', title: '3단계: 끌어다 놓기!', desc: '과일을 잡아서\n맞는 자리에 놓아보자!' },
+  { emoji: '🔤', title: '4단계: 알파벳 찾기!', desc: '위에 나온 알파벳이나 영어 단어를\n화면에서 찾아 클릭해보자!\n단어를 더블클릭하면 그림으로 바뀌어!' },
+  { emoji: '🇰🇷', title: '5단계: 한글 찾기!', desc: '위에 나온 한글 글자나 낱말을\n화면에서 찾아 클릭해보자!\n낱말을 더블클릭하면 그림으로 바뀌어!' },
 ];
 
 // ===== 오디오 =====
@@ -607,6 +848,11 @@ function playDropSound() {
   setTimeout(() => playSound(1000, 0.2), 200);
 }
 
+function playWrongSound() {
+  playSound(220, 0.15, 'triangle');
+  setTimeout(() => playSound(180, 0.2, 'triangle'), 120);
+}
+
 function playCompleteSound() {
   [0, 100, 200, 300, 400].forEach((delay, i) => {
     setTimeout(() => playSound(600 + i * 100, 0.2), delay);
@@ -623,8 +869,9 @@ function getGameArea() {
 }
 
 function clearGameObjects() {
-  document.querySelectorAll('.click-target, .egg-target, .drag-item, .drop-zone, .pop-effect, .particle, .hatch-effect')
+  document.querySelectorAll('.click-target, .egg-target, .drag-item, .drop-zone, .pop-effect, .particle, .hatch-effect, .word-target')
     .forEach(el => el.remove());
+  document.getElementById('word-prompt').classList.remove('visible');
 }
 
 function updateScore() {
@@ -637,7 +884,7 @@ function updateProgress() {
 }
 
 function updateStageDots() {
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < TOTAL_STAGES; i++) {
     const dot = document.getElementById('dot' + (i + 1));
     dot.className = 'stage-dot';
     if (i < currentStage) dot.classList.add('done');
@@ -718,6 +965,8 @@ function startStage() {
   if (currentStage === 0) startClickStage();
   else if (currentStage === 1) startDoubleClickStage();
   else if (currentStage === 2) startDragStage();
+  else if (currentStage === 3) startWordStage(3);
+  else if (currentStage === 4) startWordStage(4);
 }
 
 function stageComplete() {
@@ -727,7 +976,7 @@ function stageComplete() {
   currentStage++;
   stageScore = 0;
   document.getElementById('progress-bar').style.width = '0%';
-  if (currentStage >= 3) {
+  if (currentStage >= TOTAL_STAGES) {
     setTimeout(() => {
       document.getElementById('complete').classList.add('visible');
       updateStageDots();
@@ -840,6 +1089,162 @@ function spawnEggTarget() {
   });
 
   document.getElementById('game-area').appendChild(el);
+}
+
+// ===== 4·5단계: 글자 찾기 (알파벳 / 한글) =====
+// 알파벳(자모) 한 글자 라운드와 단어 라운드를 번갈아 진행한다.
+let wordRoundToken = 0;
+
+function buildWordRound(stageIdx) {
+  const isKorean = stageIdx === 4;
+  const letters = isKorean ? HANGUL_JAMO : ALPHABET;
+  const words = isKorean ? KOREAN_WORDS : ENGLISH_WORDS;
+  const wordRound = stageScore % 2 === 1;  // 홀수 라운드는 단어, 짝수 라운드는 한 글자
+
+  if (wordRound) {
+    const pool = [...words];
+    const answer = pool.splice(rand(0, pool.length - 1), 1)[0];
+    const decoys = [];
+    const used = new Set([answer.word]);
+    while (decoys.length < 3 && pool.length) {
+      const d = pool.splice(rand(0, pool.length - 1), 1)[0];
+      if (used.has(d.word)) continue;
+      used.add(d.word);
+      decoys.push(d);
+    }
+    return {
+      answer: answer.word,
+      emoji: answer.emoji,
+      options: [answer, ...decoys].map(w => ({ text: w.word, emoji: w.emoji })),
+      multi: true,
+    };
+  }
+
+  const pool = [...letters];
+  const answer = pool.splice(rand(0, pool.length - 1), 1)[0];
+  const decoys = [];
+  while (decoys.length < 5 && pool.length) {
+    decoys.push(pool.splice(rand(0, pool.length - 1), 1)[0]);
+  }
+  return { answer, emoji: '🔎', options: [answer, ...decoys].map(t => ({ text: t, emoji: null })), multi: false };
+}
+
+function startWordStage(stageIdx) {
+  spawnWordRound(stageIdx);
+}
+
+function spawnWordRound(stageIdx) {
+  if (stageScore >= STAGE_GOALS[stageIdx]) return;
+  const token = ++wordRoundToken;
+  const round = buildWordRound(stageIdx);
+
+  // 안내 카드
+  const prompt = document.getElementById('word-prompt');
+  document.getElementById('prompt-emoji').textContent = round.emoji;
+  document.getElementById('prompt-text').textContent = round.multi ? '이 낱말을 찾아봐!' : '이 글자를 찾아봐!';
+  const pw = document.getElementById('prompt-word');
+  pw.textContent = round.answer;
+  pw.classList.toggle('multi', round.multi);
+  prompt.classList.remove('visible');
+  void prompt.offsetWidth; // 애니메이션 재시작
+  prompt.classList.add('visible');
+
+  // 후보를 서로 겹치지 않게 뿌리기
+  const { width, height } = getGameArea();
+  const area = document.getElementById('game-area');
+  const isMobile = width < 600;
+  const boxW = round.multi ? (isMobile ? 130 : 200) : (isMobile ? 70 : 100);
+  const boxH = isMobile ? 70 : 100;
+  const topPad = isMobile ? 80 : 110;  // 안내 카드 아래부터
+  const placed = [];
+  const shuffled = [...round.options].sort(() => Math.random() - 0.5);
+
+  shuffled.forEach((opt, i) => {
+    const text = opt.text;
+    let x = 0, y = 0, ok = false;
+    for (let tries = 0; tries < 60 && !ok; tries++) {
+      x = rand(20, Math.max(20, width - boxW - 20));
+      y = rand(topPad, Math.max(topPad, height - boxH - 30));
+      ok = placed.every(p => Math.abs(p.x - x) > boxW + 10 || Math.abs(p.y - y) > boxH + 10);
+    }
+    placed.push({ x, y });
+
+    const el = document.createElement('div');
+    el.className = 'word-target' + (round.multi ? ' multi' : '');
+    el.textContent = text;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.background = WORD_COLORS[(i + stageScore) % WORD_COLORS.length];
+    el.style.animationDelay = (i * 0.05) + 's';
+
+    // 단어 라운드: 더블클릭하면 단어 ↔ 그림으로 뒤집힌다 (힌트 겸 더블클릭 연습)
+    let clickTimer = null;
+    if (opt.emoji) {
+      el.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (token !== wordRoundToken) return;
+        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+        const showPic = !el.classList.contains('pic');
+        el.style.animationDelay = '0s';
+        el.classList.remove('flip-back');
+        void el.offsetWidth;
+        el.classList.toggle('pic', showPic);
+        if (!showPic) el.classList.add('flip-back');
+        el.textContent = showPic ? opt.emoji : text;
+        playHatchSound();
+      });
+    }
+
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (token !== wordRoundToken) return;
+      if (!opt.emoji) { handleAnswer(); return; }
+      // 더블클릭(토글)인지 잠깐 기다렸다가 한 번 클릭이면 정답 판정
+      if (clickTimer) return;
+      clickTimer = setTimeout(() => { clickTimer = null; handleAnswer(); }, 250);
+    });
+
+    function handleAnswer() {
+      if (token !== wordRoundToken) return;
+      const rect = el.getBoundingClientRect();
+      const ar = area.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2 - ar.left;
+      const cy = rect.top + rect.height / 2 - ar.top;
+
+      if (text !== round.answer) {
+        // 오답: 흔들리고 사라진다 (정답 선택지는 줄어듦)
+        playWrongSound();
+        el.classList.add('wrong');
+        showPopText(cx - 30, cy - 30, '다시!');
+        setTimeout(() => el.remove(), 400);
+        return;
+      }
+
+      // 정답
+      wordRoundToken++;
+      playClickSound();
+      el.classList.add('correct');
+      spawnParticles(cx, cy);
+      showPopText(cx - 30, cy - 40, round.multi ? '정답!' : '맞았어!');
+      document.querySelectorAll('.word-target').forEach(t => { if (t !== el) t.remove(); });
+      score++;
+      stageScore++;
+      updateScore();
+      updateProgress();
+
+      setTimeout(() => {
+        el.remove();
+        if (stageScore >= STAGE_GOALS[stageIdx]) {
+          stageComplete();
+        } else {
+          spawnWordRound(stageIdx);
+        }
+      }, 600);
+    }
+
+    area.appendChild(el);
+  });
 }
 
 // ===== 3단계: 드래그 =====
@@ -1018,7 +1423,7 @@ document.addEventListener('mousemove', (e) => {
 
   // 호버 대상 체크
   const el = document.elementFromPoint(e.clientX, e.clientY);
-  if (el && (el.classList.contains('click-target') || el.classList.contains('egg-target') || el.classList.contains('drag-item'))) {
+  if (el && (el.classList.contains('click-target') || el.classList.contains('egg-target') || el.classList.contains('drag-item') || el.classList.contains('word-target'))) {
     setCursorMode('pointer');
   } else {
     setCursorMode('default');

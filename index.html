@@ -105,6 +105,23 @@
     transition: all 0.3s;
   }
 
+  .stage-dot:hover {
+    transform: scale(1.15);
+    background: #c9b8f0;
+    color: #5b4a9e;
+  }
+
+  .stage-dot.done:hover {
+    background: #6fdcd4;
+    color: white;
+  }
+
+  .stage-dot.active:hover {
+    transform: scale(1.2);
+    background: #7c5cbf;
+    color: white;
+  }
+
   .stage-dot.active {
     background: #7c5cbf;
     color: white;
@@ -623,7 +640,7 @@
     body {
       cursor: auto;
     }
-    .click-target, .egg-target, .drag-item, .word-target, .start-btn, .click-target:hover, .word-target:hover {
+    .click-target, .egg-target, .drag-item, .word-target, .stage-dot, .start-btn, .click-target:hover, .word-target:hover {
       cursor: auto;
     }
   }
@@ -646,11 +663,11 @@
 <div id="header">
   <h1>🖱️ 마우스 연습</h1>
   <div class="stage-indicator">
-    <div class="stage-dot" id="dot1">1</div>
-    <div class="stage-dot" id="dot2">2</div>
-    <div class="stage-dot" id="dot3">3</div>
-    <div class="stage-dot" id="dot4">4</div>
-    <div class="stage-dot" id="dot5">5</div>
+    <div class="stage-dot" id="dot1" onclick="jumpToStage(0)" title="1단계로 이동">1</div>
+    <div class="stage-dot" id="dot2" onclick="jumpToStage(1)" title="2단계로 이동">2</div>
+    <div class="stage-dot" id="dot3" onclick="jumpToStage(2)" title="3단계로 이동">3</div>
+    <div class="stage-dot" id="dot4" onclick="jumpToStage(3)" title="4단계로 이동">4</div>
+    <div class="stage-dot" id="dot5" onclick="jumpToStage(4)" title="5단계로 이동">5</div>
   </div>
   <div id="score">⭐ 0</div>
 </div>
@@ -984,6 +1001,23 @@ function stageComplete() {
   } else {
     setTimeout(() => showStageIntro(), 1000);
   }
+}
+
+// 상단 단계 번호 클릭 → 해당 단계로 바로 이동
+function jumpToStage(idx) {
+  if (idx < 0 || idx >= TOTAL_STAGES) return;
+  initAudio();
+  playSound(700, 0.1);
+  wordRoundToken++;
+  dragState = null;
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('complete').classList.remove('visible');
+  document.getElementById('stage-intro').classList.remove('visible');
+  clearGameObjects();
+  currentStage = idx;
+  stageScore = 0;
+  document.getElementById('progress-bar').style.width = '0%';
+  showStageIntro();
 }
 
 function resetGame() {
@@ -1423,7 +1457,7 @@ document.addEventListener('mousemove', (e) => {
 
   // 호버 대상 체크
   const el = document.elementFromPoint(e.clientX, e.clientY);
-  if (el && (el.classList.contains('click-target') || el.classList.contains('egg-target') || el.classList.contains('drag-item') || el.classList.contains('word-target'))) {
+  if (el && (el.classList.contains('click-target') || el.classList.contains('egg-target') || el.classList.contains('drag-item') || el.classList.contains('word-target') || el.classList.contains('stage-dot'))) {
     setCursorMode('pointer');
   } else {
     setCursorMode('default');

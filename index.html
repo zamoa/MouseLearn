@@ -88,12 +88,12 @@
 
   .stage-indicator {
     display: flex;
-    gap: 12px;
+    gap: 8px;
   }
 
   .stage-dot {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #ddd;
     display: flex;
@@ -538,6 +538,214 @@
     40%, 80% { transform: translateX(8px); }
   }
 
+
+  /* ===== 8단계: 짝 맞추기 (메모리) ===== */
+  .mem-grid {
+    position: absolute;
+    display: grid;
+    z-index: 10;
+  }
+
+  .mem-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #7c5cbf, #9d7fe0);
+    border: 4px solid rgba(255,255,255,0.85);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+    color: rgba(255,255,255,0.9);
+    font-weight: bold;
+    cursor: none;
+    transition: transform 0.25s, background 0.25s;
+    animation: appear 0.3s ease-out both;
+    text-align: center;
+    padding: 4px;
+    word-break: keep-all;
+  }
+
+  .mem-card:hover {
+    transform: scale(1.06);
+  }
+
+  .mem-card.open {
+    background: #fff;
+    color: #5b4a9e;
+    animation: flip 0.3s ease-out;
+  }
+
+  .mem-card.matched {
+    background: #e3fbf8;
+    border-color: #4ecdc4;
+    color: #2a9d95;
+    animation: successPulse 0.5s;
+  }
+
+  .mem-card.nudge {
+    animation: wobble 0.4s;
+  }
+
+  /* ===== 9단계: 두더지 잡기 ===== */
+  .mole-board {
+    position: absolute;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    z-index: 10;
+  }
+
+  .mole-hole {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 구멍(어두운 타원) */
+  .mole-hole::before {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: 4%;
+    height: 30%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 35%, #3b2614 0%, #5a3e22 70%);
+    box-shadow: inset 0 6px 10px rgba(0,0,0,0.35);
+    z-index: 1;
+  }
+
+  /* 구멍 앞쪽 흙 턱 */
+  .mole-hole::after {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: 0;
+    height: 14%;
+    border-radius: 50% 50% 30% 30%;
+    background: #8a6440;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .mole {
+    position: absolute;
+    left: 50%;
+    bottom: 10%;
+    transform: translate(-50%, 150%);
+    transition: transform 0.22s ease-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: none;
+    z-index: 2;
+  }
+
+  .mole.up {
+    transform: translate(-50%, 0);
+  }
+
+  .mole.bonk {
+    animation: shake 0.3s;
+  }
+
+  .mole-letter {
+    background: #fff;
+    color: #5b4a9e;
+    border: 3px solid #7c5cbf;
+    border-radius: 14px;
+    padding: 2px 12px;
+    font-weight: bold;
+    font-size: 30px;
+    line-height: 1.2;
+    margin-bottom: -6px;
+    pointer-events: none;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  }
+
+  .mole-face {
+    font-size: 64px;
+    line-height: 1;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+  }
+
+  /* ===== 10단계: 낚시 ===== */
+  .pond {
+    position: absolute;
+    border-radius: 40px;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.35), transparent 50%),
+                linear-gradient(180deg, #7fd3f7 0%, #3aa9e0 100%);
+    border: 6px solid #2b8bc0;
+    box-shadow: inset 0 8px 30px rgba(0,0,0,0.15);
+    z-index: 5;
+  }
+
+  .fish {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+  }
+
+  .fish-emoji {
+    font-size: 56px;
+    line-height: 1;
+    display: inline-block;
+  }
+
+  .fish-letter {
+    background: #fff;
+    color: #2b6fa3;
+    border: 3px solid #2b8bc0;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+
+  .basket {
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 90px;
+    border-radius: 30px;
+    border: 4px dashed #c58a3a;
+    background: rgba(255,214,150,0.35);
+    transition: transform 0.2s, background 0.2s;
+    z-index: 6;
+  }
+
+  .basket.highlight {
+    transform: scale(1.12);
+    background: rgba(255,214,150,0.7);
+  }
+
+  .basket.bonk {
+    animation: shake 0.4s;
+  }
+
+  .basket.matched {
+    animation: successPulse 0.5s;
+  }
+
+  @media (max-width: 900px) {
+    #header h1 {
+      font-size: 22px;
+    }
+    .stage-dot {
+      width: 30px;
+      height: 30px;
+      font-size: 15px;
+    }
+    .stage-indicator {
+      gap: 6px;
+    }
+  }
+
   /* ===== 모바일 반응형 ===== */
   @media (max-width: 600px) {
     #header {
@@ -550,12 +758,31 @@
       display: none;
     }
     .stage-dot {
-      width: 28px;
-      height: 28px;
-      font-size: 13px;
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
     }
     .stage-indicator {
-      gap: 5px;
+      gap: 3px;
+    }
+    .mole-letter {
+      font-size: 20px;
+      padding: 1px 8px;
+    }
+    .mole-face {
+      font-size: 44px;
+    }
+    .fish-emoji {
+      font-size: 40px;
+    }
+    .fish-letter {
+      font-size: 20px;
+      padding: 1px 7px;
+    }
+    .basket {
+      width: 84px;
+      height: 84px;
+      font-size: 56px;
     }
     #score {
       font-size: 18px;
@@ -610,6 +837,11 @@
       top: 8px;
       gap: 8px;
       padding: 6px 14px;
+      white-space: normal;
+      max-width: calc(100% - 24px);
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
     }
     #word-prompt .prompt-emoji {
       font-size: 28px;
@@ -643,7 +875,7 @@
     body {
       cursor: auto;
     }
-    .click-target, .egg-target, .drag-item, .word-target, .stage-dot, .start-btn, .click-target:hover, .word-target:hover {
+    .click-target, .egg-target, .drag-item, .word-target, .stage-dot, .mem-card, .mole, .start-btn, .click-target:hover, .word-target:hover {
       cursor: auto;
     }
   }
@@ -673,6 +905,9 @@
     <div class="stage-dot" id="dot5" onclick="jumpToStage(4)" title="5단계로 이동">5</div>
     <div class="stage-dot" id="dot6" onclick="jumpToStage(5)" title="6단계로 이동">6</div>
     <div class="stage-dot" id="dot7" onclick="jumpToStage(6)" title="7단계로 이동">7</div>
+    <div class="stage-dot" id="dot8" onclick="jumpToStage(7)" title="8단계로 이동">8</div>
+    <div class="stage-dot" id="dot9" onclick="jumpToStage(8)" title="9단계로 이동">9</div>
+    <div class="stage-dot" id="dot10" onclick="jumpToStage(9)" title="10단계로 이동">10</div>
   </div>
   <div id="score">⭐ 0</div>
 </div>
@@ -718,7 +953,7 @@ let score = 0;
 let stageScore = 0;
 let audioCtx = null;
 
-const STAGE_GOALS = [10, 10, 5, 10, 10, 10, 10];
+const STAGE_GOALS = [10, 10, 5, 10, 10, 10, 10, 6, 8, 6];
 const TOTAL_STAGES = STAGE_GOALS.length;
 const CLICK_EMOJIS = ['🐱', '🐶', '🐰', '🦊', '🐻', '🐼', '🐸', '🦁', '🐯', '🐮', '🐷', '🐵', '🦄', '🐝', '🐞', '🦋', '⭐', '🌟', '💫', '🌈'];
 const HATCH_ANIMALS = ['🐣', '🐥', '🐤', '🐦', '🦜', '🦆', '🦅', '🐧', '🦉', '🦩'];
@@ -843,6 +1078,9 @@ const STAGES = [
   { emoji: '🇰🇷', title: '5단계: 한글 찾기!', desc: '위에 나온 한글 글자나 낱말을\n화면에서 찾아 클릭해보자!\n그림을 더블클릭하면 낱말이 보여!' },
   { emoji: '🍎', title: '6단계: 알파벳과 그림 짝짓기!', desc: 'A로 시작하는 그림은 뭘까?\nAPPLE은 어떤 그림일까?\n그림을 더블클릭하면 단어가 보여!' },
   { emoji: '🐱', title: '7단계: 한글과 그림 짝짓기!', desc: 'ㄱ으로 시작하는 그림은 뭘까?\n사과는 어떤 그림일까?\n그림을 더블클릭하면 낱말이 보여!' },
+  { emoji: '🃏', title: '8단계: 짝 맞추기!', desc: '카드를 더블클릭해서 뒤집어보자!\n그림 카드와 낱말 카드가\n짝이 되면 성공!' },
+  { emoji: '🔨', title: '9단계: 두더지 잡기!', desc: '두더지가 글자를 들고 나와!\n위에 나온 글자 두더지만\n빠르게 클릭해서 잡자!' },
+  { emoji: '🎣', title: '10단계: 낚시!', desc: '위에 나온 낱말의 첫 글자를 가진\n물고기를 잡아서\n바구니에 끌어다 넣자!' },
 ];
 
 // ===== 오디오 =====
@@ -902,9 +1140,44 @@ function getGameArea() {
 }
 
 function clearGameObjects() {
-  document.querySelectorAll('.click-target, .egg-target, .drag-item, .drop-zone, .pop-effect, .particle, .hatch-effect, .word-target')
+  stopStageLoops();
+  document.querySelectorAll('.click-target, .egg-target, .drag-item, .drop-zone, .pop-effect, .particle, .hatch-effect, .word-target, .mem-grid, .mole-board, .pond, .basket')
     .forEach(el => el.remove());
   document.getElementById('word-prompt').classList.remove('visible');
+}
+
+// 스테이지별 타이머/애니메이션 루프 관리 (스테이지 이동 시 정리)
+const stageTimers = new Set();
+let stageRaf = null;
+let dropHandler = null;   // 드래그 놓기 커스텀 처리 (낚시 등)
+
+function later(fn, ms) {
+  const id = setTimeout(() => { stageTimers.delete(id); fn(); }, ms);
+  stageTimers.add(id);
+  return id;
+}
+
+function stopStageLoops() {
+  stageTimers.forEach(id => clearTimeout(id));
+  stageTimers.clear();
+  if (stageRaf) { cancelAnimationFrame(stageRaf); stageRaf = null; }
+  dropHandler = null;
+  dragState = null;
+}
+
+function showPrompt(word, emoji, text) {
+  const prompt = document.getElementById('word-prompt');
+  const pe = document.getElementById('prompt-emoji');
+  pe.textContent = emoji || '';
+  pe.style.display = emoji ? '' : 'none';
+  const pw = document.getElementById('prompt-word');
+  pw.textContent = word || '';
+  pw.style.display = word ? '' : 'none';
+  pw.classList.toggle('multi', (word || '').length > 1);
+  document.getElementById('prompt-text').textContent = text;
+  prompt.classList.remove('visible');
+  void prompt.offsetWidth;
+  prompt.classList.add('visible');
 }
 
 function updateScore() {
@@ -999,6 +1272,9 @@ function startStage() {
   else if (currentStage === 1) startDoubleClickStage();
   else if (currentStage === 2) startDragStage();
   else if (WORD_STAGES[currentStage]) startWordStage(currentStage);
+  else if (currentStage === 7) startMemoryStage();
+  else if (currentStage === 8) startMoleStage();
+  else if (currentStage === 9) startFishingStage();
 }
 
 function stageComplete() {
@@ -1243,6 +1519,7 @@ function spawnWordRound(stageIdx) {
   document.getElementById('prompt-text').textContent = round.promptText;
   const pw = document.getElementById('prompt-word');
   pw.textContent = round.promptWord;
+  pw.style.display = '';
   pw.classList.toggle('multi', round.promptWord.length > 1);
   prompt.classList.remove('visible');
   void prompt.offsetWidth; // 애니메이션 재시작
@@ -1347,6 +1624,354 @@ function spawnWordRound(stageIdx) {
   });
 }
 
+// ===== 8단계: 짝 맞추기 (메모리 게임, 더블클릭) =====
+let memOpen = [];
+let memLock = false;
+
+function startMemoryStage() {
+  memOpen = [];
+  memLock = false;
+  const { width, height } = getGameArea();
+  const isMobile = width < 600;
+  const cols = isMobile ? 3 : 4;
+  const rows = isMobile ? 4 : 3;
+  const gap = isMobile ? 8 : 14;
+  const size = Math.floor(Math.min((width - 40 - gap * (cols - 1)) / cols, (height - 120 - gap * (rows - 1)) / rows, 150));
+
+  showPrompt('', '🃏', '더블클릭으로 카드를 뒤집어 그림과 낱말 짝을 찾아봐!');
+
+  // 영어 3 + 한글 3 낱말 → 그림 카드 + 낱말 카드
+  const en = pickWords(ENGLISH_WORDS.filter(w => w.word.length <= 6), 3, []);
+  const ko = pickWords(KOREAN_WORDS.filter(w => w.word.length <= 3), 3, []);
+  const cards = [];
+  [...en, ...ko].forEach((w, key) => {
+    cards.push({ key, face: w.emoji, kind: 'pic' });
+    cards.push({ key, face: w.word, kind: 'word' });
+  });
+  cards.sort(() => Math.random() - 0.5);
+
+  const grid = document.createElement('div');
+  grid.className = 'mem-grid';
+  grid.style.gridTemplateColumns = `repeat(${cols}, ${size}px)`;
+  grid.style.gap = gap + 'px';
+  const gw = cols * size + (cols - 1) * gap;
+  const gh = rows * size + (rows - 1) * gap;
+  grid.style.left = Math.max(10, (width - gw) / 2) + 'px';
+  grid.style.top = Math.max(90, 90 + (height - 90 - gh) / 2) + 'px';
+
+  cards.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.className = 'mem-card';
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.fontSize = Math.round(size * 0.4) + 'px';
+    el.style.animationDelay = (i * 0.04) + 's';
+    el.textContent = '❓';
+    el.dataset.key = c.key;
+    el.dataset.face = c.face;
+    el.dataset.kind = c.kind;
+
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (el.classList.contains('open')) return;
+      el.classList.remove('nudge');
+      void el.offsetWidth;
+      el.classList.add('nudge');
+      playSound(500, 0.08);
+    });
+
+    el.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (memLock || el.classList.contains('open')) return;
+      revealCard(el, c, size);
+    });
+
+    grid.appendChild(el);
+  });
+
+  document.getElementById('game-area').appendChild(grid);
+}
+
+function revealCard(el, c, size) {
+  el.classList.add('open');
+  el.textContent = c.face;
+  const len = c.face.length;
+  el.style.fontSize = Math.round(size * (c.kind === 'pic' ? 0.5 : len <= 2 ? 0.4 : len <= 4 ? 0.3 : 0.22)) + 'px';
+  playHatchSound();
+  memOpen.push(el);
+  if (memOpen.length < 2) return;
+
+  memLock = true;
+  const [a, b] = memOpen;
+  memOpen = [];
+  if (a.dataset.key === b.dataset.key) {
+    a.classList.add('matched');
+    b.classList.add('matched');
+    playDropSound();
+    const ar = document.getElementById('game-area').getBoundingClientRect();
+    const r = b.getBoundingClientRect();
+    const cx = r.left + r.width / 2 - ar.left;
+    const cy = r.top + r.height / 2 - ar.top;
+    spawnParticles(cx, cy);
+    const pic = a.dataset.kind === 'pic' ? a.dataset.face : b.dataset.face;
+    const word = a.dataset.kind === 'word' ? a.dataset.face : b.dataset.face;
+    showPopText(cx - 60, cy - 50, `${pic} ${word}`);
+    score++;
+    stageScore++;
+    updateScore();
+    updateProgress();
+    memLock = false;
+    if (stageScore >= STAGE_GOALS[7]) later(stageComplete, 500);
+  } else {
+    playWrongSound();
+    later(() => {
+      [a, b].forEach(x => {
+        x.classList.remove('open');
+        x.textContent = '❓';
+        x.style.fontSize = Math.round(size * 0.4) + 'px';
+      });
+      memLock = false;
+    }, 900);
+  }
+}
+
+// ===== 9단계: 두더지 잡기 (클릭) =====
+let moleTarget = null;
+
+function setMoleTarget() {
+  const lang = Math.random() < 0.5 ? 'en' : 'ko';
+  const letters = lang === 'ko' ? HANGUL_JAMO.slice(0, 14) : ALPHABET;
+  moleTarget = { lang, letter: pick(letters), letters };
+  showPrompt(moleTarget.letter, '🔨', '이 글자 두더지를 잡아라!');
+}
+
+function startMoleStage() {
+  const { width, height } = getGameArea();
+  const isMobile = width < 600;
+  const bw = Math.min(width - 30, 560);
+  const bh = Math.min(height - (isMobile ? 90 : 120), 440);
+  const board = document.createElement('div');
+  board.className = 'mole-board';
+  board.style.width = bw + 'px';
+  board.style.height = bh + 'px';
+  board.style.left = (width - bw) / 2 + 'px';
+  board.style.top = (isMobile ? 80 : 105) + 'px';
+  board.style.gap = (isMobile ? 6 : 12) + 'px';
+
+  for (let i = 0; i < 9; i++) {
+    const hole = document.createElement('div');
+    hole.className = 'mole-hole';
+    const mole = document.createElement('div');
+    mole.className = 'mole';
+    mole.innerHTML = '<span class="mole-letter"></span><span class="mole-face">🐹</span>';
+    mole.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!mole.classList.contains('up') || mole.dataset.busy) return;
+      whackMole(mole);
+    });
+    hole.appendChild(mole);
+    board.appendChild(hole);
+  }
+  document.getElementById('game-area').appendChild(board);
+
+  setMoleTarget();
+  later(spawnMole, 500);
+}
+
+function spawnMole() {
+  if (stageScore >= STAGE_GOALS[8]) return;
+  const moles = [...document.querySelectorAll('.mole')];
+  const free = moles.filter(m => !m.classList.contains('up') && !m.dataset.busy);
+  const upCount = moles.length - free.length;
+  if (free.length && upCount < 3) {
+    const mole = pick(free);
+    // 정답 두더지가 이미 나와 있으면 확률을 낮추고, 없으면 높여서 너무 오래 기다리지 않게
+    const targetUp = moles.some(m => m.classList.contains('up') && m.dataset.letter === moleTarget.letter);
+    const isTarget = Math.random() < (targetUp ? 0.2 : 0.55);
+    const letter = isTarget ? moleTarget.letter : pick(moleTarget.letters.filter(l => l !== moleTarget.letter));
+    mole.dataset.letter = letter;
+    mole.querySelector('.mole-letter').textContent = letter;
+    mole.classList.add('up');
+    const showId = String(Date.now() + Math.random());
+    mole.dataset.showId = showId;
+    const stay = Math.max(900, 1500 - stageScore * 60);
+    later(() => { if (mole.dataset.showId === showId && !mole.dataset.busy) mole.classList.remove('up'); }, stay);
+  }
+  later(spawnMole, rand(550, 900));
+}
+
+function whackMole(mole) {
+  const ar = document.getElementById('game-area').getBoundingClientRect();
+  const r = mole.getBoundingClientRect();
+  const cx = r.left + r.width / 2 - ar.left;
+  const cy = r.top + r.height / 2 - ar.top;
+
+  if (mole.dataset.letter !== moleTarget.letter) {
+    playWrongSound();
+    mole.classList.add('bonk');
+    showPopText(cx - 30, cy - 40, '아니야!');
+    later(() => { mole.classList.remove('bonk', 'up'); }, 300);
+    return;
+  }
+
+  mole.dataset.busy = '1';
+  playClickSound();
+  spawnParticles(cx, cy);
+  showPopText(cx - 40, cy - 50, `${moleTarget.letter} 잡았다!`);
+  mole.classList.remove('up');
+  later(() => { delete mole.dataset.busy; }, 500);
+
+  score++;
+  stageScore++;
+  updateScore();
+  updateProgress();
+
+  if (stageScore >= STAGE_GOALS[8]) {
+    stopStageLoops();
+    later(stageComplete, 400);
+  } else if (stageScore % 2 === 0) {
+    setMoleTarget();
+  }
+}
+
+// ===== 10단계: 낚시 (드래그) =====
+let fishes = [];
+let fishRound = null;
+
+function startFishingStage() {
+  const { width, height } = getGameArea();
+  const isMobile = width < 600;
+  const area = document.getElementById('game-area');
+
+  const basketSize = isMobile ? 84 : 130;
+  const pondTop = isMobile ? 92 : 105;
+  const pond = { left: 16, top: pondTop, width: width - 32 - basketSize - 16, height: height - pondTop - 16 };
+  const pondEl = document.createElement('div');
+  pondEl.className = 'pond';
+  pondEl.style.left = pond.left + 'px';
+  pondEl.style.top = pond.top + 'px';
+  pondEl.style.width = pond.width + 'px';
+  pondEl.style.height = pond.height + 'px';
+  area.appendChild(pondEl);
+
+  const basket = document.createElement('div');
+  basket.className = 'basket';
+  basket.textContent = '🧺';
+  basket.style.width = basketSize + 'px';
+  basket.style.height = basketSize + 'px';
+  basket.style.left = (width - basketSize - 16) + 'px';
+  basket.style.top = (height - basketSize - 16) + 'px';
+  area.appendChild(basket);
+
+  fishRound = { pond, basket, lang: 'en', isMobile };
+  dropHandler = onFishDrop;
+  nextFishRound();
+  stageRaf = requestAnimationFrame(swimFishes);
+}
+
+function nextFishRound() {
+  fishes.forEach(f => f.el.remove());
+  fishes = [];
+  const lang = fishRound.lang = fishRound.lang === 'en' ? 'ko' : 'en';
+  const words = lang === 'ko' ? KOREAN_WORDS : ENGLISH_WORDS;
+  const letters = lang === 'ko' ? HANGUL_JAMO.slice(0, 14) : ALPHABET;
+  const candidates = words.filter(w => startLetters(w.word, lang).length);
+  const word = pick(candidates);
+  const target = startLetters(word.word, lang)[0];
+  fishRound.target = target;
+  showPrompt(word.word, word.emoji, '첫 글자 물고기를 바구니에 넣자!');
+
+  const decoys = letters.filter(l => l !== target).sort(() => Math.random() - 0.5).slice(0, 4);
+  const all = [target, ...decoys].sort(() => Math.random() - 0.5);
+  const { pond, isMobile } = fishRound;
+  const fishH = isMobile ? 50 : 70;
+  const fishW = isMobile ? 110 : 150;
+  const laneH = (pond.height - 20) / all.length;
+
+  all.forEach((letter, i) => {
+    const el = document.createElement('div');
+    el.className = 'drag-item fish';
+    el.dataset.letter = letter;
+    el.innerHTML = `<span class="fish-emoji">🐟</span><span class="fish-letter">${letter}</span>`;
+    const y = pond.top + 10 + laneH * i + Math.max(0, (laneH - fishH) / 2);
+    const x = rand(pond.left + 10, Math.max(pond.left + 10, pond.left + pond.width - fishW - 10));
+    const speed = (isMobile ? 0.6 : 0.9) + Math.random() * 0.8;
+    const f = { el, x, y, vx: Math.random() < 0.5 ? speed : -speed, w: fishW, dragging: false };
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.querySelector('.fish-emoji').style.transform = f.vx > 0 ? 'scaleX(-1)' : '';
+
+    el.addEventListener('mousedown', (e) => { e.preventDefault(); f.dragging = true; startDrag(el, e.clientX, e.clientY); });
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); const t = e.touches[0]; f.dragging = true; startDrag(el, t.clientX, t.clientY); }, { passive: false });
+
+    document.getElementById('game-area').appendChild(el);
+    fishes.push(f);
+  });
+}
+
+function swimFishes() {
+  const { pond } = fishRound;
+  fishes.forEach(f => {
+    if (f.dragging) return;
+    f.x += f.vx;
+    const minX = pond.left + 6;
+    const maxX = pond.left + pond.width - f.w - 6;
+    if (f.x <= minX) { f.x = minX; f.vx = Math.abs(f.vx); }
+    if (f.x >= maxX) { f.x = maxX; f.vx = -Math.abs(f.vx); }
+    f.el.style.left = f.x + 'px';
+    f.el.querySelector('.fish-emoji').style.transform = f.vx > 0 ? 'scaleX(-1)' : '';
+  });
+  stageRaf = requestAnimationFrame(swimFishes);
+}
+
+function onFishDrop(item, clientX, clientY) {
+  const f = fishes.find(x => x.el === item);
+  if (!f) return;
+  const { pond, basket, target } = fishRound;
+  const ar = document.getElementById('game-area').getBoundingClientRect();
+  const br = basket.getBoundingClientRect();
+  const inBasket = clientX > br.left && clientX < br.right && clientY > br.top && clientY < br.bottom;
+  const bx = br.left + br.width / 2 - ar.left;
+  const by = br.top + br.height / 2 - ar.top;
+
+  if (inBasket && item.dataset.letter === target) {
+    playDropSound();
+    basket.classList.add('matched');
+    spawnParticles(bx, by);
+    showPopText(bx - 60, by - 70, `${target} 잡았다!`);
+    item.remove();
+    fishes = fishes.filter(x => x !== f);
+    score++;
+    stageScore++;
+    updateScore();
+    updateProgress();
+    later(() => {
+      basket.classList.remove('matched');
+      if (stageScore >= STAGE_GOALS[9]) stageComplete();
+      else nextFishRound();
+    }, 700);
+    return;
+  }
+
+  if (inBasket) {
+    playWrongSound();
+    basket.classList.remove('bonk');
+    void basket.offsetWidth;
+    basket.classList.add('bonk');
+    showPopText(bx - 30, by - 70, '아니야!');
+  }
+
+  // 연못 안으로 되돌려 다시 헤엄치게
+  const left = parseFloat(item.style.left) || f.x;
+  const top = parseFloat(item.style.top) || f.y;
+  f.x = Math.min(Math.max(left, pond.left + 6), pond.left + pond.width - f.w - 6);
+  f.y = Math.min(Math.max(top, pond.top + 6), pond.top + pond.height - 60);
+  item.style.left = f.x + 'px';
+  item.style.top = f.y + 'px';
+  f.dragging = false;
+}
+
 // ===== 3단계: 드래그 =====
 let dragState = null;
 
@@ -1425,7 +2050,7 @@ function moveDrag(clientX, clientY) {
   item.style.top = (clientY - areaTop - offsetY) + 'px';
 
   // 드롭 영역 하이라이트
-  document.querySelectorAll('.drop-zone').forEach(zone => {
+  document.querySelectorAll('.drop-zone, .basket').forEach(zone => {
     const zr = zone.getBoundingClientRect();
     const cx = clientX;
     const cy = clientY;
@@ -1452,6 +2077,13 @@ function endDrag(clientX, clientY) {
   if (!dragState) return;
   const { item } = dragState;
   item.classList.remove('dragging');
+
+  if (dropHandler) {
+    dragState = null;
+    document.querySelectorAll('.basket').forEach(b => b.classList.remove('highlight'));
+    dropHandler(item, clientX, clientY);
+    return;
+  }
 
   let matched = false;
   document.querySelectorAll('.drop-zone').forEach(zone => {
@@ -1523,7 +2155,7 @@ document.addEventListener('mousemove', (e) => {
 
   // 호버 대상 체크
   const el = document.elementFromPoint(e.clientX, e.clientY);
-  if (el && (el.classList.contains('click-target') || el.classList.contains('egg-target') || el.classList.contains('drag-item') || el.classList.contains('word-target') || el.classList.contains('stage-dot'))) {
+  if (el && el.closest('.click-target, .egg-target, .drag-item, .word-target, .stage-dot, .mem-card, .mole.up')) {
     setCursorMode('pointer');
   } else {
     setCursorMode('default');

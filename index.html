@@ -632,7 +632,7 @@
     left: 50%;
     bottom: 10%;
     transform: translate(-50%, 150%);
-    transition: transform 0.22s ease-out;
+    transition: transform 0.35s ease-out;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1734,7 +1734,7 @@ function startMoleStage() {
   document.getElementById('game-area').appendChild(board);
 
   setMoleTarget();
-  later(spawnMole, 500);
+  later(spawnMole, 800);
 }
 
 function spawnMole() {
@@ -1742,7 +1742,7 @@ function spawnMole() {
   const moles = [...document.querySelectorAll('.mole')];
   const free = moles.filter(m => !m.classList.contains('up') && !m.dataset.busy);
   const upCount = moles.length - free.length;
-  if (free.length && upCount < 3) {
+  if (free.length && upCount < 2) {
     const mole = pick(free);
     // 정답 두더지가 이미 나와 있으면 확률을 낮추고, 없으면 높여서 너무 오래 기다리지 않게
     const targetUp = moles.some(m => m.classList.contains('up') && m.dataset.letter === moleTarget.letter);
@@ -1753,10 +1753,10 @@ function spawnMole() {
     mole.classList.add('up');
     const showId = String(Date.now() + Math.random());
     mole.dataset.showId = showId;
-    const stay = Math.max(900, 1500 - stageScore * 60);
+    const stay = Math.max(2200, 3000 - stageScore * 80);  // 6살 기준: 2.2~3초 머무름
     later(() => { if (mole.dataset.showId === showId && !mole.dataset.busy) mole.classList.remove('up'); }, stay);
   }
-  later(spawnMole, rand(550, 900));
+  later(spawnMole, rand(1100, 1600));
 }
 
 function whackMole(mole) {

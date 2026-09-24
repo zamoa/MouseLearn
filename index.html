@@ -220,6 +220,7 @@
     color: #555;
     text-align: center;
     line-height: 1.6;
+    white-space: pre-line;
   }
 
   /* 클릭 타겟 */
@@ -539,6 +540,51 @@
   }
 
 
+  /* ===== 난이도 선택 (9·10단계) ===== */
+  #difficulty-picker {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #difficulty-picker.visible {
+    display: flex;
+  }
+
+  #difficulty-picker .diff-label {
+    font-size: 20px;
+    color: #777;
+  }
+
+  .diff-btns {
+    display: flex;
+    gap: 12px;
+  }
+
+  .diff-btn {
+    font-size: 22px;
+    padding: 12px 22px;
+    border-radius: 40px;
+    border: 3px solid #cfc3ea;
+    background: #fff;
+    color: #5b4a9e;
+    cursor: none;
+    transition: transform 0.15s, background 0.15s, border-color 0.15s;
+  }
+
+  .diff-btn:hover {
+    transform: scale(1.08);
+    border-color: #7c5cbf;
+  }
+
+  .diff-btn.selected {
+    background: linear-gradient(135deg, #7c5cbf, #e85d75);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 6px 18px rgba(124,92,191,0.35);
+  }
+
   /* ===== 8단계: 짝 맞추기 (메모리) ===== */
   .mem-grid {
     position: absolute;
@@ -784,6 +830,16 @@
       height: 84px;
       font-size: 56px;
     }
+    #difficulty-picker .diff-label {
+      font-size: 15px;
+    }
+    .diff-btn {
+      font-size: 16px;
+      padding: 8px 14px;
+    }
+    .diff-btns {
+      gap: 8px;
+    }
     #score {
       font-size: 18px;
     }
@@ -875,7 +931,7 @@
     body {
       cursor: auto;
     }
-    .click-target, .egg-target, .drag-item, .word-target, .stage-dot, .mem-card, .mole, .start-btn, .click-target:hover, .word-target:hover {
+    .click-target, .egg-target, .drag-item, .word-target, .stage-dot, .mem-card, .mole, .diff-btn, .start-btn, .click-target:hover, .word-target:hover {
       cursor: auto;
     }
   }
@@ -934,6 +990,14 @@
     <div class="stage-emoji" id="stage-emoji">👆</div>
     <h2 id="stage-title"></h2>
     <p id="stage-desc"></p>
+    <div id="difficulty-picker">
+      <div class="diff-label">속도를 골라봐!</div>
+      <div class="diff-btns">
+        <button class="diff-btn" data-level="easy" onclick="setDifficulty('easy')">🐢 쉬움</button>
+        <button class="diff-btn" data-level="normal" onclick="setDifficulty('normal')">🐇 보통</button>
+        <button class="diff-btn" data-level="hard" onclick="setDifficulty('hard')">🚀 어려움</button>
+      </div>
+    </div>
     <button class="start-btn" onclick="startStage()">준비 됐어!</button>
   </div>
 
@@ -1211,11 +1275,35 @@ function startGame() {
   showStageIntro();
 }
 
+// ===== 난이도 (9단계 두더지, 10단계 낚시) =====
+const DIFFICULTY = {
+  easy:   { moleStay: 4500, moleStayMin: 3500, moleGap: [1600, 2200], moleMaxUp: 1, fishSpeed: 0.5 },
+  normal: { moleStay: 3000, moleStayMin: 2200, moleGap: [1100, 1600], moleMaxUp: 2, fishSpeed: 1.0 },
+  hard:   { moleStay: 1600, moleStayMin: 1000, moleGap: [600, 900],   moleMaxUp: 3, fishSpeed: 1.9 },
+};
+const DIFFICULTY_STAGES = [8, 9];
+let difficulty = 'normal';
+try { if (DIFFICULTY[localStorage.getItem('mouselearn-difficulty')]) difficulty = localStorage.getItem('mouselearn-difficulty'); } catch (e) {}
+
+function setDifficulty(level) {
+  if (!DIFFICULTY[level]) return;
+  difficulty = level;
+  try { localStorage.setItem('mouselearn-difficulty', level); } catch (e) {}
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('selected', b.dataset.level === level));
+  initAudio();
+  playSound(level === 'easy' ? 500 : level === 'normal' ? 650 : 800, 0.1);
+}
+
+function diff() { return DIFFICULTY[difficulty]; }
+
 function showStageIntro() {
   const info = STAGES[currentStage];
   document.getElementById('stage-emoji').textContent = info.emoji;
   document.getElementById('stage-title').textContent = info.title;
   document.getElementById('stage-desc').textContent = info.desc;
+  const picker = document.getElementById('difficulty-picker');
+  picker.classList.toggle('visible', DIFFICULTY_STAGES.includes(currentStage));
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('selected', b.dataset.level === difficulty));
   const el = document.getElementById('stage-intro');
   el.classList.add('visible');
   updateStageDots();
@@ -1742,7 +1830,7 @@ function spawnMole() {
   const moles = [...document.querySelectorAll('.mole')];
   const free = moles.filter(m => !m.classList.contains('up') && !m.dataset.busy);
   const upCount = moles.length - free.length;
-  if (free.length && upCount < 2) {
+  if (free.length && upCount < diff().moleMaxUp) {
     const mole = pick(free);
     // 정답 두더지가 이미 나와 있으면 확률을 낮추고, 없으면 높여서 너무 오래 기다리지 않게
     const targetUp = moles.some(m => m.classList.contains('up') && m.dataset.letter === moleTarget.letter);
@@ -1753,10 +1841,10 @@ function spawnMole() {
     mole.classList.add('up');
     const showId = String(Date.now() + Math.random());
     mole.dataset.showId = showId;
-    const stay = Math.max(2200, 3000 - stageScore * 80);  // 6살 기준: 2.2~3초 머무름
+    const stay = Math.max(diff().moleStayMin, diff().moleStay - stageScore * 80);
     later(() => { if (mole.dataset.showId === showId && !mole.dataset.busy) mole.classList.remove('up'); }, stay);
   }
-  later(spawnMole, rand(1100, 1600));
+  later(spawnMole, rand(diff().moleGap[0], diff().moleGap[1]));
 }
 
 function whackMole(mole) {
@@ -1854,7 +1942,7 @@ function nextFishRound() {
     el.innerHTML = `<span class="fish-emoji">🐟</span><span class="fish-letter">${letter}</span>`;
     const y = pond.top + 10 + laneH * i + Math.max(0, (laneH - fishH) / 2);
     const x = rand(pond.left + 10, Math.max(pond.left + 10, pond.left + pond.width - fishW - 10));
-    const speed = (isMobile ? 0.6 : 0.9) + Math.random() * 0.8;
+    const speed = ((isMobile ? 0.6 : 0.9) + Math.random() * 0.8) * diff().fishSpeed;
     const f = { el, x, y, vx: Math.random() < 0.5 ? speed : -speed, w: fishW, dragging: false };
     el.style.left = x + 'px';
     el.style.top = y + 'px';
@@ -2113,7 +2201,7 @@ document.addEventListener('mousemove', (e) => {
 
   // 호버 대상 체크
   const el = document.elementFromPoint(e.clientX, e.clientY);
-  if (el && el.closest('.click-target, .egg-target, .drag-item, .word-target, .stage-dot, .mem-card, .mole.up')) {
+  if (el && el.closest('.click-target, .egg-target, .drag-item, .word-target, .stage-dot, .mem-card, .mole.up, .diff-btn')) {
     setCursorMode('pointer');
   } else {
     setCursorMode('default');
